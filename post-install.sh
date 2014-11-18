@@ -14,7 +14,7 @@ export DEBIAN_FRONTEND=noninteractive
 # Install Apache2, PHP, MySQL
 #
 chroot $1 apt-get -yq install apache2 apache2-mpm-event \
-	libapache2-mod-php5 mysql-server
+	libapache2-mod-php5 php5-mysql mysql-server
 
 #
 # Setup serial console
