@@ -10,13 +10,40 @@ set -e
 export RUNLEVEL=1
 export DEBIAN_FRONTEND=noninteractive
 
-echo "Installing Apache2"
-chroot $1 apt-get -yq install apache2
+echo "Installing Apache2, PHP, MySQL"
+chroot $1 apt-get -yq install apache2 apache2-mpm-event \
+	libapache2-mod-php5 mysql-server
 
-echo "Installing PHP"
-chroot $1 apt-get -yq install libapache2-mod-php5
+echo "Setting up serial console"
+chroot $1 tee /etc/init/ttyS0.conf <<EOF
+# ttyS0 - getty
+#
+# This service maintains a getty on ttyS0 from the point the system is
+# started until it is shut down again.
 
-echo "Installing MySQL"
-chroot $1 apt-get -yq install mysql-server
+start on stopped rc or RUNLEVEL=[12345]
+stop on runlevel [!12345]
 
+respawn
+exec /sbin/getty -L 115200 ttyS0 vt102
+EOF
+chroot $1 dpkg-divert --rename /etc/init/tty1.conf
+chroot $1 dpkg-divert --rename /etc/init/tty2.conf
+chroot $1 dpkg-divert --rename /etc/init/tty3.conf
+chroot $1 dpkg-divert --rename /etc/init/tty4.conf
+chroot $1 dpkg-divert --rename /etc/init/tty5.conf
+chroot $1 dpkg-divert --rename /etc/init/tty6.conf
 
+# Kernel serial console
+chroot $1 sed -i -e 's|^timeout.*|timeout 0|' /boot/grub/menu.lst
+chroot $1 sed -i -e 's|^# defoptions=.*|# defoptions=console=ttyS0|' /boot/grub/menu.lst
+chroot $1 update-grub
+
+# Disable Plymouth
+chroot $1 dpkg-divert --rename /etc/init/plymouth.conf
+chroot $1 dpkg-divert --rename /etc/init/plymouth-log.conf
+chroot $1 dpkg-divert --rename /etc/init/plymouth-ready.conf
+chroot $1 dpkg-divert --rename /etc/init/plymouth-shutdown.conf
+chroot $1 dpkg-divert --rename /etc/init/plymouth-splash.conf
+chroot $1 dpkg-divert --rename /etc/init/plymouth-stop.conf
+chroot $1 dpkg-divert --rename /etc/init/plymouth-upstart-bridge.conf
