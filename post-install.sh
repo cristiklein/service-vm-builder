@@ -10,11 +10,17 @@ set -e
 export RUNLEVEL=1
 export DEBIAN_FRONTEND=noninteractive
 
-echo "Installing Apache2, PHP, MySQL"
+#
+# Install Apache2, PHP, MySQL
+#
 chroot $1 apt-get -yq install apache2 apache2-mpm-event \
 	libapache2-mod-php5 mysql-server
 
-echo "Setting up serial console"
+#
+# Setup serial console
+#
+
+# Login on serial
 chroot $1 tee /etc/init/ttyS0.conf <<EOF
 # ttyS0 - getty
 #
