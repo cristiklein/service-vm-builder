@@ -53,3 +53,26 @@ chroot $1 dpkg-divert --rename /etc/init/plymouth-shutdown.conf
 chroot $1 dpkg-divert --rename /etc/init/plymouth-splash.conf
 chroot $1 dpkg-divert --rename /etc/init/plymouth-stop.conf
 chroot $1 dpkg-divert --rename /etc/init/plymouth-upstart-bridge.conf
+
+#
+# Configure Apache
+#
+chroot $1 a2disconf other-vhosts-access-log
+chroot $1 sed -i -e 's|CustomLog.*|# CustomLog removed to reduce noise|' /etc/apache2/sites-enabled/000-default.conf
+
+#
+# Configure MySQL
+#
+chroot $1 tee /etc/mysql/conf.d/skip-grant-tables.cnf <<EOF
+[mysqld]
+skip-grant-tables
+EOF
+chroot $1 tee /etc/mysql/conf.d/max-connections.cnf <<EOF
+[mysqld]
+max_connections = 100
+EOF
+
+#
+# Reduce noise
+#
+chroot $1 dpkg-divert --rename /etc/init/cron.conf
