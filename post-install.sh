@@ -90,8 +90,8 @@ mkdir -p $1/var/www/rubis
 (cd $1/var/www; git clone https://github.com/cloud-control/brownout-lb-rubis.git rubis)
 chroot $1 sed -i -e 's|DocumentRoot.*|DocumentRoot /var/www/rubis|' /etc/apache2/sites-enabled/000-default.conf
 
-echo "Installing RUBiS Database..." >&2
 chroot $1 /usr/sbin/mysqld --skip-networking & MYSQL_DAEMON=$!
 chroot $1 mysqladmin --wait ping
+echo "Installing RUBiS Database..." >&2
 (echo "SET unique_checks=0; SET foreign_key_checks=0;"; zcat rubis.sql.gz) | chroot $1 mysql
 chroot $1 mysqladmin shutdown
