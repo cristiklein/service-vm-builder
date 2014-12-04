@@ -93,5 +93,5 @@ chroot $1 sed -i -e 's|DocumentRoot.*|DocumentRoot /var/www/rubis|' /etc/apache2
 chroot $1 /usr/sbin/mysqld --skip-networking & MYSQL_DAEMON=$!
 chroot $1 mysqladmin --wait ping
 echo "Installing RUBiS Database..." >&2
-(echo "SET unique_checks=0; SET foreign_key_checks=0;"; zcat rubis.sql.gz) | chroot $1 mysql
+(echo "SET unique_checks=0; SET foreign_key_checks=0;"; cat rubis.sql.bz2.* | bzcat) | chroot $1 mysql
 chroot $1 mysqladmin shutdown
