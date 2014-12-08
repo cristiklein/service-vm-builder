@@ -59,6 +59,7 @@ chroot $1 dpkg-divert --rename /etc/init/plymouth-upstart-bridge.conf
 #
 chroot $1 a2disconf other-vhosts-access-log
 chroot $1 sed -i -e 's|CustomLog.*|# CustomLog removed to reduce noise|' /etc/apache2/sites-enabled/000-default.conf
+chroot $1 sed -i -e 's|#Require ip.*|Require ip 192.168.122.0/24|' /etc/apache2/mods-enabled/status.conf
 
 #
 # Configure MySQL
